@@ -7,10 +7,10 @@ describe('DI', () => {
     expect(di).to.be.an('object');
   });
 
-  describe('#registerModule', () => {
+  describe('#registerService', () => {
     it('should register a module', () => {
       const di = getDI();
-      di.registerModule('adder', [], {
+      di.registerService('adder', [], {
         binary: (...deps) => (a, b) => a + b,
         fake: (...deps) => 0,
       });
@@ -22,7 +22,7 @@ describe('DI', () => {
 
     it('should be convinient to use with a single implementation', () => {
       const di = getDI();
-      di.registerModule('adder', [],
+      di.registerService('adder', [],
         (...deps) => (...numbers) => numbers.reduce((sum, num) => sum + num, 0));
       expect(di.get).to.be.a('function');
       expect(di.get('adder')(3,5,17)).to.equal(25);
@@ -32,7 +32,7 @@ describe('DI', () => {
   describe('#addImplementation', () => {
     it('should add a new implementation afterwards', () => {
       const di = getDI();
-      di.registerModule('adder', []);
+      di.registerService('adder', []);
       di.addImplementation('adder', 'binary', () => (a, b) => a + b)
       di.setImplementation('adder', 'binary');
       expect(di.get('adder')(31, 17)).to.equal(48);
@@ -40,7 +40,7 @@ describe('DI', () => {
 
     it('should throw if already set', () => {
       const di = getDI();
-      di.registerModule('adder', []);
+      di.registerService('adder', []);
       di.addImplementation('adder', 'binary', () => (a, b) => a + b)
       expect(() => di.addImplementation('adder', 'binary', () => {})).to.throw();
     });

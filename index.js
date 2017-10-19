@@ -14,7 +14,7 @@ module.exports = function getDI({}={}) {
 
   return Object.freeze({
     get,
-    registerModule(name, dependencies, implementationGetters={}) {
+    registerService(name, dependencies, implementationGetters={}) {
       if (modules[name]) throw new Error(`Already registered ${name} module.`);
       if (typeof implementationGetters === 'function')
         implementationGetters = {undefined: implementationGetters};
