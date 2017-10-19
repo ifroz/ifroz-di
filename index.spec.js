@@ -26,6 +26,23 @@ describe('DI', () => {
         (...deps) => (...numbers) => numbers.reduce((sum, num) => sum + num, 0));
       expect(di.get).to.be.a('function');
       expect(di.get('adder')(3,5,17)).to.equal(25);
-    })
+    });
+  });
+
+  describe('#addImplementation', () => {
+    it('should add a new implementation afterwards', () => {
+      const di = getDI();
+      di.registerModule('adder', []);
+      di.addImplementation('adder', 'binary', () => (a, b) => a + b)
+      di.setImplementation('adder', 'binary');
+      expect(di.get('adder')(31, 17)).to.equal(48);
+    });
+
+    it('should throw if already set', () => {
+      const di = getDI();
+      di.registerModule('adder', []);
+      di.addImplementation('adder', 'binary', () => (a, b) => a + b)
+      expect(() => di.addImplementation('adder', 'binary', () => {})).to.throw();
+    });
   });
 })
