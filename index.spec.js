@@ -20,6 +20,16 @@ describe('DI', () => {
     })
   });
 
+  describe('#registerFactory', () => {
+    it('should make a factory accessible', () => {
+      const di = getDI();
+      di.registerService('lowercase', [], () => s => s.toLowerCase());
+      di.registerService('uppercase', [], () => s => s.toUpperCase());
+      di.registerFactory('case', (_di) => _di.get('lowercase'))
+      expect(di.get('case')('WhAT!?')).to.equal('what!?');
+    })
+  })
+
   describe('#registerService', () => {
     it('should register a module', () => {
       const di = getDI();

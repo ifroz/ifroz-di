@@ -11,7 +11,7 @@ module.exports = function getDI({}={}) {
       `Unknown implementation ${implementationNames[name]} for module ${name}`);
     instances[name] = instances[name] || {};
     instances[name][implementationName] = instances[name][implementationName] ||
-      modules[name][implementationName](...dependencyNames[name].map(get));
+      modules[name][implementationName](...(dependencyNames[name] || []).map(get));
     return instances[name][implementationName];
   }
 
@@ -32,6 +32,12 @@ module.exports = function getDI({}={}) {
 
   return Object.freeze({
     get,
+    registerFactory(name, factory) {
+      validateModuleNotRegistered(name);
+      modules[name] = {
+        [undefined]: () => factory({ get })
+      };
+    },
     registerService(name, dependencies, implementationGetters={}) {
       validateModuleNotRegistered(name);
       modules[name] = enforceImplementationsObject(implementationGetters);
