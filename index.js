@@ -26,14 +26,15 @@ module.exports = function getDI({}={}) {
     if (instances[name])
       throw new Error(`Already instantiated ${name}'s ${implementationNames[name]} implementation`);
   }
+  const enforceImplementationsObject = (oneOrMoreGetters) =>
+    typeof oneOrMoreGetters === 'function' ?
+      { undefined: oneOrMoreGetters } : oneOrMoreGetters;
 
   return Object.freeze({
     get,
     registerService(name, dependencies, implementationGetters={}) {
       validateModuleNotRegistered(name);
-      if (typeof implementationGetters === 'function')
-        implementationGetters = {undefined: implementationGetters};
-      modules[name] = implementationGetters;
+      modules[name] = enforceImplementationsObject(implementationGetters);
       dependencyNames[name] = dependencies;
     },
     addImplementation(name, implementationName, getImplementation) {
