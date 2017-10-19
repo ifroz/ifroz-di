@@ -15,24 +15,33 @@ module.exports = function getDI({}={}) {
     return instances[name][implementationName];
   }
 
+  const validateModuleNotRegistered = (name) => {
+    if (modules[name]) throw new Error(`Already registered ${name} module.`);
+  };
+  const validateImplementationNotRegistered = (name, implementationName) => {
+    if (modules[name][implementationName])
+      throw new Error(`Already registered ${implementationName} implementation for ${name}`);
+  }
+  const validateNotInstantiated = (name) => {
+    if (instances[name])
+      throw new Error(`Already instantiated ${name}'s ${implementationNames[name]} implementation`);
+  }
+
   return Object.freeze({
     get,
     registerService(name, dependencies, implementationGetters={}) {
-      if (modules[name]) throw new Error(`Already registered ${name} module.`);
+      validateModuleNotRegistered(name);
       if (typeof implementationGetters === 'function')
         implementationGetters = {undefined: implementationGetters};
       modules[name] = implementationGetters;
       dependencyNames[name] = dependencies;
     },
     addImplementation(name, implementationName, getImplementation) {
-      if (modules[name][implementationName])
-        throw new Error(`Already registered ${implementationName} implementation for ${name}`);
-      else
-        modules[name][implementationName] = getImplementation
+      validateImplementationNotRegistered(name, implementationName);
+      modules[name][implementationName] = getImplementation
     },
     setImplementation(name, implementationName) {
-      if (instances[name])
-        throw new Error(`Already instantiated ${name}'s ${implementationName} implementation`);
+      validateNotInstantiated(name);
       implementationNames[name] = implementationName;
     }
   });
