@@ -1,9 +1,11 @@
 module.exports = function getDI({}={}) {
   const modules = {};
-  const implementationNames = {}
+  const implementationNames = {};
+  const instances = {};
   return Object.freeze({
     get(name) {
-      return modules[name]();
+      instances[name] = instances[name] || modules[name]();
+      return instances[name];
     },
     registerModule(name, dependencies, implementations) {
       if (modules[name])
@@ -12,8 +14,8 @@ module.exports = function getDI({}={}) {
         implementations[implementationNames[name]](...dependencies);
     },
     setImplementation(name, implementationName) {
-      if (implementationNames[name])
-        throw new Error(`Implementation of ${name} is already set.`);
+      if (instances[name])
+        throw new Error(`Already instantiated ${name}'s ${implementationName} implementation`);
       implementationNames[name] = implementationName;
     }
   });
