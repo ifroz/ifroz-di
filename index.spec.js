@@ -7,6 +7,19 @@ describe('DI', () => {
     expect(di).to.be.an('object');
   });
 
+  describe('#get', () => {
+    it('should throw when a module name is unknown', () => {
+      const name = 'whatever';
+      expect(() => getDI().get(name)).to.throw(`Unknown module ${name}`);
+    });
+
+    it('should throw when an implementation is unknown', () => {
+      const di = getDI();
+      di.registerService('none', [], {});
+      expect(() => di.get('none')).to.throw(`Unknown implementation undefined`);
+    })
+  });
+
   describe('#registerService', () => {
     it('should register a module', () => {
       const di = getDI();

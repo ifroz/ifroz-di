@@ -6,6 +6,9 @@ module.exports = function getDI({}={}) {
 
   function get(name) {
     const implementationName = implementationNames[name];
+    if (!modules[name]) throw new Error(`Unknown module ${name}`);
+    if (!modules[name][implementationNames[name]]) throw new Error(
+      `Unknown implementation ${implementationNames[name]} for module ${name}`);
     instances[name] = instances[name] || {};
     instances[name][implementationName] = instances[name][implementationName] ||
       modules[name][implementationName](...dependencyNames[name].map(get));
