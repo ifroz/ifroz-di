@@ -65,7 +65,18 @@ describe('DI', () => {
       const di = getDI();
       di.registerService('adder', []);
       di.addImplementation('adder', 'binary', () => (a, b) => a + b)
-      expect(() => di.addImplementation('adder', 'binary', () => {})).to.throw();
+      expect(() => di.addImplementation('adder', 'binary', () => {})).to.throw(
+        `Already registered binary`);
     });
   });
+
+  describe('#setImplementation', () => {
+    it('should throw if you want to set after instantiated', () => {
+      const di = getDI();
+      di.registerService('x', [], () => 42)
+      expect(di.get('x')).to.eq(42);
+      expect(() => di.setImplementation('x', 'fails after get')).to.throw(
+        `Already instantiated`);
+    })
+  })
 })
