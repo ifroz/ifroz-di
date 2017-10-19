@@ -8,8 +8,12 @@ module.exports = function getDI({}={}) {
       return instances[name];
     },
     registerModule(name, dependencies, implementations) {
-      if (modules[name])
+      if (modules[name]) {
         throw new Error(`Already registered ${name} module.`);
+      }
+
+      if (typeof implementations === 'function')
+        implementations = {undefined: implementations};
       modules[name] = () =>
         implementations[implementationNames[name]](...dependencies);
     },
