@@ -8,7 +8,20 @@
     "node": ">8.0.0"
   },
   "scripts": {
-    "test": "mocha **/*.spec.js"
+    "test": "npm-watch",
+    "t": "mocha **/*.spec.js"
+  },
+  "watch": {
+    "t": {
+      "patterns": [
+        "."
+      ],
+      "extensions": [
+        "js",
+        "json",
+        "feature"
+      ]
+    }
   },
   "devDependencies": {
     "chai": "^4.1.2",
