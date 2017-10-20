@@ -45,6 +45,7 @@ module.exports = function getDI({defaultImplementation}={}) {
     },
     addImplementation(name, implementationName, getImplementation) {
       validateImplementationNotRegistered(name, implementationName);
+      validateNotInstantiated(name);
       modules[name][implementationName] = getImplementation
     },
     setImplementation(name, implementationName) {
