@@ -72,13 +72,7 @@ module.exports = function getDI({defaultImplementation}={}) {
 
   return Object.freeze({
     get,
-    registerFactory(name, factory) {
-      validateModuleNotRegistered(name);
-      modules[name] = {
-        [defaultImplementation]: () => factory({ get })
-      };
-      moduleTypes[name] = 'factory';
-    },
+
     registerService(name, dependencies, implementationGetters={}) {
       validateModuleNotRegistered(name);
       const sanitizedModule = sanitizeImplementationsObject(implementationGetters);
@@ -87,13 +81,6 @@ module.exports = function getDI({defaultImplementation}={}) {
         validateImplementation(module, dependencies));
       modules[name] = sanitizedModule;
       moduleTypes[name] = 'service';
-    },
-    registerConstant(name, value) {
-      validateModuleNotRegistered(name);
-      modules[name] = {
-        [defaultImplementation]: () => value
-      }
-      moduleTypes[name] = 'constant';
     },
     addImplementation(name, implementationName, getImplementation) {
       validateImplementationNotRegistered(name, implementationName);
@@ -104,6 +91,22 @@ module.exports = function getDI({defaultImplementation}={}) {
     setImplementation(name, implementationName) {
       validateNotInstantiated(name);
       implementationNames[name] = implementationName;
+    },
+
+    registerFactory(name, factory) {
+      validateModuleNotRegistered(name);
+      modules[name] = {
+        [defaultImplementation]: () => factory({ get })
+      };
+      moduleTypes[name] = 'factory';
+    },
+
+    registerConstant(name, value) {
+      validateModuleNotRegistered(name);
+      modules[name] = {
+        [defaultImplementation]: () => value
+      }
+      moduleTypes[name] = 'constant';
     }
   });
 };
