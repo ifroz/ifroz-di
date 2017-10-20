@@ -5,8 +5,12 @@ module.exports = function getDI({defaultImplementation}={}) {
   const implementationNames = {};
   const instances = {};
 
-  function get(name) {
-    const implementationName = implementationNames[name] || defaultImplementation;
+  function get(name, explicitlySetImplementationName) {
+    const implementationName =
+      explicitlySetImplementationName ||
+      implementationNames[name] ||
+      defaultImplementation;
+
     validateModuleProperlyConfigured(name, implementationName)
     switch (moduleTypes[name]) {
       case 'service':

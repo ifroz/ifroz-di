@@ -12,6 +12,18 @@ describe('DI', () => {
   });
 
   describe('#get', () => {
+    it('should get an implementation if explicitly given', () => {
+      di.registerService('mul', [], () => (a, b) => a * b);
+      di.registerService('mod', ['mul'], {
+        byTwo: mul => x => mul(x, 2),
+        byThree: mul => x => mul(x, 3)
+      })
+      const doubleIt = di.get('mod', 'byTwo')
+      expect(doubleIt(10)).to.eq(20);
+      const tripleIt = di.get('mod', 'byThree');
+      expect(tripleIt(10)).to.eq(30);
+      expect(doubleIt(10)).to.eq(20);
+    })
     it('should throw when a module name is unknown', () => {
       const name = 'whatever';
       expect(() => di.get(name)).to.throw(`Unknown module ${name}`);
