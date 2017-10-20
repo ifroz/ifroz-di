@@ -37,6 +37,9 @@ module.exports = function getDI({defaultImplementation}={}) {
   const validateImplementation = (implementationGetter, deps) => {
     if (typeof implementationGetter !== 'function')
       throw new Error(`An implementation getter should be a function`);
+    if (deps.length !== implementationGetter.length) {
+      throw new Error(`Invalid signature, fn(${deps.join(', ')}) expected`);
+    }
   };
 
   const sanitizeImplementationsObject = (oneOrMoreGetters) => {

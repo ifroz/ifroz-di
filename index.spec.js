@@ -62,6 +62,14 @@ describe('DI', () => {
       expect(() => di.registerService('singleImplementation', [], true))
         .to.throw(`Invalid implementation true`);
     })
+
+    describe('#validateImplementation', () => {
+      it('should check for arguments count', () => {
+        const di = getDI();
+        expect(() => di.registerService('x', ['y', 'z'], () => {}))
+          .to.throw(`fn(y, z) expected`);
+      })
+    })
   });
 
   describe('#addImplementation', () => {
