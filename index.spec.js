@@ -27,7 +27,13 @@ describe('DI', () => {
       di.registerService('uppercase', [], () => s => s.toUpperCase());
       di.registerFactory('case', (_di) => _di.get('lowercase'))
       expect(di.get('case')('WhAT!?')).to.equal('what!?');
-    })
+    });
+    it('should regenerate the instance whenever it is accessed', () => {
+      const di = getDI();
+      let count = 1;
+      di.registerFactory('x', (_di) => ({count: count++}))
+      expect(di.get('x')).not.to.equal(di.get('x'));
+    });
   })
 
   describe('#registerService', () => {
@@ -42,6 +48,16 @@ describe('DI', () => {
       expect(adderService).to.be.a('function');
       expect(adderService(5,7)).to.equal(12);
     });
+
+    it('should register singletons', () => {
+      it('should regenerate the instance whenever it is accessed', () => {
+        const di = getDI();
+        let count = 1;
+        di.registerModule('x', [], () => count++)
+        expect(di.get('x')).to.equal(di.get('x'));
+      })
+
+    })
 
     it('should be convinient to use with a single implementation', () => {
       const di = getDI();

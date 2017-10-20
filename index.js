@@ -1,5 +1,6 @@
 module.exports = function getDI({defaultImplementation}={}) {
   const modules = {};
+  const moduleTypes = {};
   const dependencyNames = {};
   const implementationNames = {};
   const instances = {};
@@ -7,7 +8,25 @@ module.exports = function getDI({defaultImplementation}={}) {
   function get(name) {
     const implementationName = implementationNames[name] || defaultImplementation;
     validateModuleProperlyConfigured(name, implementationName)
-    return getInstance(name, implementationName);
+    switch (moduleTypes[name]) {
+      case 'service':
+        return getOrCreateInstance(name, implementationName);
+      case 'factory':
+        return createInstance(name, implementationName)
+      default:
+        throw new Error(`Unkonwn module type ${moduleTypes[name]}.`);
+    }
+  }
+
+  const getOrCreateInstance = (name, implementationName) => {
+    instances[name] = instances[name] || {};
+    instances[name][implementationName] =
+      instances[name][implementationName] ||
+      createInstance(name, implementationName)
+    return instances[name][implementationName];
+  }
+  const createInstance = (name, implementationName) => {
+    return modules[name][implementationName](...(dependencyNames[name] || []).map(get));
   }
 
   const validateModuleProperlyConfigured = (name, implementationName) => {
@@ -15,13 +34,6 @@ module.exports = function getDI({defaultImplementation}={}) {
     if (!modules[name][implementationName]) throw new Error(
       `Unknown implementation ${implementationName} for module ${name}`);
   };
-
-  const getInstance = (name, implementationName) => {
-    instances[name] = instances[name] || {};
-    instances[name][implementationName] = instances[name][implementationName] ||
-      modules[name][implementationName](...(dependencyNames[name] || []).map(get));
-    return instances[name][implementationName];
-  }
 
   const validateModuleNotRegistered = (name) => {
     if (modules[name]) throw new Error(`Already registered ${name} module.`);
@@ -60,6 +72,7 @@ module.exports = function getDI({defaultImplementation}={}) {
       modules[name] = {
         [defaultImplementation]: () => factory({ get })
       };
+      moduleTypes[name] = 'factory';
     },
     registerService(name, dependencies, implementationGetters={}) {
       validateModuleNotRegistered(name);
@@ -68,6 +81,7 @@ module.exports = function getDI({defaultImplementation}={}) {
       Object.values(sanitizedModule).forEach(module =>
         validateImplementation(module, dependencies));
       modules[name] = sanitizedModule;
+      moduleTypes[name] = 'service';
     },
     addImplementation(name, implementationName, getImplementation) {
       validateImplementationNotRegistered(name, implementationName);
