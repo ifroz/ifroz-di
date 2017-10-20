@@ -32,7 +32,7 @@ di.registerService('multiplyBy', ['multiply'], {
 });
 ````
 
-Then you can use them se
+Then you can use them like this:
 
 ```javascript
 di.get('multiplyBy', 'byTwo')(10) === 20
