@@ -34,9 +34,21 @@ module.exports = function getDI({defaultImplementation}={}) {
     if (instances[name])
       throw new Error(`Already instantiated ${name}'s ${implementationNames[name]} implementation`);
   }
-  const enforceImplementationsObject = (oneOrMoreGetters) =>
-    typeof oneOrMoreGetters === 'function' ?
-      { [defaultImplementation]: oneOrMoreGetters } : oneOrMoreGetters;
+  const validateImplementation = (implementationGetter, deps) => {
+    if (typeof implementationGetter !== 'function')
+      throw new Error(`An implementation getter should be a function`);
+  };
+
+  const sanitizeImplementationsObject = (oneOrMoreGetters) => {
+    switch (typeof oneOrMoreGetters) {
+      case 'function':
+        return { [defaultImplementation] : oneOrMoreGetters };
+      case 'object':
+        return oneOrMoreGetters;
+      default:
+        throw new Error(`Invalid implementation ${oneOrMoreGetters}`);
+    }
+  }
 
   return Object.freeze({
     get,
@@ -48,12 +60,16 @@ module.exports = function getDI({defaultImplementation}={}) {
     },
     registerService(name, dependencies, implementationGetters={}) {
       validateModuleNotRegistered(name);
-      modules[name] = enforceImplementationsObject(implementationGetters);
+      const sanitizedModule = sanitizeImplementationsObject(implementationGetters);
       dependencyNames[name] = dependencies;
+      Object.values(sanitizedModule).forEach(module =>
+        validateImplementation(module, dependencies));
+      modules[name] = sanitizedModule;
     },
     addImplementation(name, implementationName, getImplementation) {
       validateImplementationNotRegistered(name, implementationName);
       validateNotInstantiated(name);
+      validateImplementation(getImplementation, dependencyNames[name]);
       modules[name][implementationName] = getImplementation
     },
     setImplementation(name, implementationName) {

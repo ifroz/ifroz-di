@@ -50,9 +50,28 @@ describe('DI', () => {
       expect(di.get).to.be.a('function');
       expect(di.get('adder')(3,5,17)).to.equal(25);
     });
+
+    it('should throw if a service is not a function', () => {
+      const di = getDI();
+      expect(() => di.registerService('implementationsObject', [], {x: true}))
+        .to.throw(`should be a function`);
+    });
+
+    it('should throw if the default service is not a function', () => {
+      const di = getDI();
+      expect(() => di.registerService('singleImplementation', [], true))
+        .to.throw(`Invalid implementation true`);
+    })
   });
 
   describe('#addImplementation', () => {
+    it('should throw if the getter is not a function', () => {
+      const di = getDI();
+      di.registerService('x', [], {})
+      expect(() => di.addImplementation('x', 'impl', 52)
+      ).to.throw(`should be a function`);
+    })
+
     it('should add a new implementation afterwards', () => {
       const di = getDI();
       di.registerService('adder', []);
