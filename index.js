@@ -6,9 +6,17 @@ module.exports = function getDI({defaultImplementation}={}) {
 
   function get(name) {
     const implementationName = implementationNames[name] || defaultImplementation;
+    validateModuleProperlyConfigured(name, implementationName)
+    return getInstance(name, implementationName);
+  }
+
+  const validateModuleProperlyConfigured = (name, implementationName) => {
     if (!modules[name]) throw new Error(`Unknown module ${name}`);
-    if (!modules[name][implementationNames[name]]) throw new Error(
-      `Unknown implementation ${implementationNames[name]} for module ${name}`);
+    if (!modules[name][implementationName]) throw new Error(
+      `Unknown implementation ${implementationName} for module ${name}`);
+  };
+
+  const getInstance = (name, implementationName) => {
     instances[name] = instances[name] || {};
     instances[name][implementationName] = instances[name][implementationName] ||
       modules[name][implementationName](...(dependencyNames[name] || []).map(get));
