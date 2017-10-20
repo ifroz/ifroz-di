@@ -36,6 +36,14 @@ describe('DI', () => {
     });
   })
 
+  describe('#registerConstant', () => {
+    it('should register a constant value as is, without deps', () => {
+      const di = getDI();
+      di.registerConstant('theAnswer', 42);
+      expect(di.get('theAnswer')).to.equal(42);
+    });
+  })
+
   describe('#registerService', () => {
     it('should register a module', () => {
       const di = getDI();

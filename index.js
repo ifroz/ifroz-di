@@ -10,6 +10,7 @@ module.exports = function getDI({defaultImplementation}={}) {
     validateModuleProperlyConfigured(name, implementationName)
     switch (moduleTypes[name]) {
       case 'service':
+      case 'constant':
         return getOrCreateInstance(name, implementationName);
       case 'factory':
         return createInstance(name, implementationName)
@@ -82,6 +83,13 @@ module.exports = function getDI({defaultImplementation}={}) {
         validateImplementation(module, dependencies));
       modules[name] = sanitizedModule;
       moduleTypes[name] = 'service';
+    },
+    registerConstant(name, value) {
+      validateModuleNotRegistered(name);
+      modules[name] = {
+        [defaultImplementation]: () => value
+      }
+      moduleTypes[name] = 'constant';
     },
     addImplementation(name, implementationName, getImplementation) {
       validateImplementationNotRegistered(name, implementationName);
