@@ -1,11 +1,11 @@
-module.exports = function getDI({}={}) {
+module.exports = function getDI({defaultImplementation}={}) {
   const modules = {};
   const dependencyNames = {};
   const implementationNames = {};
   const instances = {};
 
   function get(name) {
-    const implementationName = implementationNames[name];
+    const implementationName = implementationNames[name] || defaultImplementation;
     if (!modules[name]) throw new Error(`Unknown module ${name}`);
     if (!modules[name][implementationNames[name]]) throw new Error(
       `Unknown implementation ${implementationNames[name]} for module ${name}`);
@@ -28,14 +28,14 @@ module.exports = function getDI({}={}) {
   }
   const enforceImplementationsObject = (oneOrMoreGetters) =>
     typeof oneOrMoreGetters === 'function' ?
-      { undefined: oneOrMoreGetters } : oneOrMoreGetters;
+      { [defaultImplementation]: oneOrMoreGetters } : oneOrMoreGetters;
 
   return Object.freeze({
     get,
     registerFactory(name, factory) {
       validateModuleNotRegistered(name);
       modules[name] = {
-        [undefined]: () => factory({ get })
+        [defaultImplementation]: () => factory({ get })
       };
     },
     registerService(name, dependencies, implementationGetters={}) {
