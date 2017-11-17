@@ -5,9 +5,8 @@ module.exports = function getDI({defaultImplementation}={}) {
   const implementationNames = {};
   const instances = {};
 
-  function get(name, explicitlySetImplementationName) {
+  function get(name) {
     const implementationName =
-      explicitlySetImplementationName ||
       implementationNames[name] ||
       defaultImplementation;
 
