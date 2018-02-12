@@ -80,16 +80,19 @@ module.exports = function getDI({defaultImplementation}={}) {
         validateImplementation(module, dependencies));
       modules[name] = sanitizedModule;
       moduleTypes[name] = 'service';
+      return this;
     },
     addImplementation(name, implementationName, getImplementation) {
       validateImplementationNotRegistered(name, implementationName);
       validateNotInstantiated(name);
       validateImplementation(getImplementation, dependencyNames[name]);
       modules[name][implementationName] = getImplementation
+      return this;
     },
     setImplementation(name, implementationName) {
       validateNotInstantiated(name);
       implementationNames[name] = implementationName;
+      return this;
     },
 
     registerFactory(name, factory) {
@@ -98,6 +101,7 @@ module.exports = function getDI({defaultImplementation}={}) {
         [defaultImplementation]: () => factory({ get })
       };
       moduleTypes[name] = 'factory';
+      return this;
     },
 
     registerConstant(name, value) {
@@ -106,6 +110,7 @@ module.exports = function getDI({defaultImplementation}={}) {
         [defaultImplementation]: () => value
       }
       moduleTypes[name] = 'constant';
+      return this;
     }
   });
 };
