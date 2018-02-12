@@ -5,12 +5,13 @@ module.exports = function getDI({defaultImplementation}={}) {
   const implementationNames = {};
   const instances = {};
 
-  function get(name) {
+  function get(name, explictlySetImplementationName) {
     const implementationName =
+      explictlySetImplementationName ||
       implementationNames[name] ||
       defaultImplementation;
 
-    validateModuleProperlyConfigured(name, implementationName)
+    validateModuleProperlyConfigured(name, implementationName);
     switch (moduleTypes[name]) {
       case 'service':
       case 'constant':
@@ -30,7 +31,8 @@ module.exports = function getDI({defaultImplementation}={}) {
     return instances[name][implementationName];
   }
   const createInstance = (name, implementationName) => {
-    return modules[name][implementationName](...(dependencyNames[name] || []).map(get));
+    return modules[name][implementationName](...(dependencyNames[name] || [])
+        .map(moduleName => get(moduleName)));
   }
 
   const validateModuleProperlyConfigured = (name, implementationName) => {
@@ -72,7 +74,7 @@ module.exports = function getDI({defaultImplementation}={}) {
   return Object.freeze({
     get,
 
-    registerService(name, dependencies, implementationGetters={}) {
+    registerService(name, dependencies, implementationGetters={}, defaultImpl) {
       validateModuleNotRegistered(name);
       const sanitizedModule = sanitizeImplementationsObject(implementationGetters);
       dependencyNames[name] = dependencies;
@@ -80,13 +82,14 @@ module.exports = function getDI({defaultImplementation}={}) {
         validateImplementation(module, dependencies));
       modules[name] = sanitizedModule;
       moduleTypes[name] = 'service';
+      if (defaultImpl) this.setImplementation(name, defaultImpl);
       return this;
     },
     addImplementation(name, implementationName, getImplementation) {
       validateImplementationNotRegistered(name, implementationName);
       validateNotInstantiated(name);
       validateImplementation(getImplementation, dependencyNames[name]);
-      modules[name][implementationName] = getImplementation
+      modules[name][implementationName] = getImplementation;
       return this;
     },
     setImplementation(name, implementationName) {
