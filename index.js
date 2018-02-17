@@ -47,11 +47,11 @@ module.exports = function getDI({defaultImplementation}={}) {
   const validateImplementationNotRegistered = (name, implementationName) => {
     if (modules[name][implementationName])
       throw new Error(`Already registered ${implementationName} implementation for ${name}`);
-  }
+  };
   const validateNotInstantiated = (name) => {
     if (instances[name])
       throw new Error(`Already instantiated ${name}'s ${implementationNames[name]} implementation`);
-  }
+  };
   const validateImplementation = (implementationGetter, deps) => {
     if (typeof implementationGetter !== 'function')
       throw new Error(`An implementation getter should be a function`);
@@ -69,7 +69,7 @@ module.exports = function getDI({defaultImplementation}={}) {
       default:
         throw new Error(`Invalid implementation ${oneOrMoreGetters}`);
     }
-  }
+  };
 
   return Object.freeze({
     get,
@@ -83,19 +83,29 @@ module.exports = function getDI({defaultImplementation}={}) {
       modules[name] = sanitizedModule;
       moduleTypes[name] = 'service';
       if (defaultImpl) this.setImplementation(name, defaultImpl);
-      return this;
+      return Object.freeze({
+        add: (...rest) => this.addImplementation(name, ...rest),
+        use: (...rest) => this.setImplementation(name, ...rest),
+      });
     },
+
     addImplementation(name, implementationName, getImplementation) {
       validateImplementationNotRegistered(name, implementationName);
       validateNotInstantiated(name);
       validateImplementation(getImplementation, dependencyNames[name]);
       modules[name][implementationName] = getImplementation;
-      return this;
+      return Object.freeze({
+        add: (...rest) => this.addImplementation(name, ...rest),
+        use: (...rest) => this.setImplementation(name, ...rest),
+      });
     },
     setImplementation(name, implementationName) {
       validateNotInstantiated(name);
       implementationNames[name] = implementationName;
-      return this;
+      return Object.freeze({
+        add: (...rest) => this.addImplementation(name, ...rest),
+        use: (...rest) => this.setImplementation(name, ...rest),
+      });
     },
 
     registerFactory(name, factory) {
@@ -111,7 +121,7 @@ module.exports = function getDI({defaultImplementation}={}) {
       validateModuleNotRegistered(name);
       modules[name] = {
         [defaultImplementation]: () => value
-      }
+      };
       moduleTypes[name] = 'constant';
       return this;
     }
